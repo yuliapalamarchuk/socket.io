@@ -13,12 +13,23 @@ const io = new Server(httpServer, {
 app.get("/", async (req, res) => {
   return res.send(123);
 });
-// app.listen(3000, async () => {
-//   console.log("server started");
-// });
+app.listen(3000, async () => {
+  console.log("server started");
+});
 
 io.on("connection", (socket) => {
-  console.log("Подключен клиент", socket);
+  socket.emit("connected", {
+    message: "Вы успешно подключены!",
+  });
+
+  socket.on("message", (arg) => {
+    console.log(arg);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("Клиент был отключен");
+    console.log(reason);
+  });
 });
 
 httpServer.listen(3001);
