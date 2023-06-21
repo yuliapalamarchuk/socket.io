@@ -17,19 +17,28 @@ app.listen(3000, async () => {
   console.log("server started");
 });
 
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (token === "secret") {
+    next();
+  } else {
+    next();
+    const err = new Error("not authorized");
+    err.data = { content: "Please retry later" };
+    next(err);
+  }
+});
+
 io.on("connection", (socket) => {
-  socket.emit("connected", {
-    message: "Вы успешно подключены!",
-  });
-
-  socket.on("message", (arg) => {
-    console.log(arg);
-  });
-
-  socket.on("disconnect", (reason) => {
-    console.log("Клиент был отключен");
-    console.log(reason);
+  socket.on("message", (data) => {
+    socket.emit("message", data);
   });
 });
+
+// setInterval(() => {
+//   io.emit("ping", {
+//     ts: new Date(),
+//   });
+// }, 10000);
 
 httpServer.listen(3001);
